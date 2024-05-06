@@ -11,16 +11,10 @@ namespace BinaryHeap
     public class BinaryHeap<T> where T : IComparable<T>
     {
         private List<T> heap;
+        public int heapSize { get; private set; }
         public BinaryHeap() 
         {
             heap = new List<T>();
-        }
-        public int heapSize
-        {
-            get
-            {
-                return heap.Count();
-            }
         }
 
         public void Add(T item) 
@@ -42,6 +36,7 @@ namespace BinaryHeap
                 current = parent;
                 parent = (current - 1) / 2;
             }
+            heapSize++;
         }
         public T GetMax()
         {
@@ -50,6 +45,7 @@ namespace BinaryHeap
             var result = heap[0];
             heap[0] = heap[heapSize - 1];
             heap.RemoveAt(heapSize - 1);
+            heapSize--;
             Heapify(0);
             return result;
         }
@@ -72,20 +68,74 @@ namespace BinaryHeap
             heap[index] = temp;
             Heapify(largest);
         }
-        public void BuildHeap(T [] sourceArray)
+        public void BuildHeap(T [] sourceheapay)
         {
-            heap = sourceArray.ToList();
-            for (int i = heapSize / 2; i >= 0; i--)
+            heap = sourceheapay.ToList();
+            heapSize = heap.Count;
+            for (int i = (heapSize - 1) / 2; i >= 0; i--)
             {
                 Heapify(i);
             }
         }
-        public void HeapSort(T[] array)
+        public void HeapSortRecursion(ref T[] heapay)
         {
-            BuildHeap(array);
-            for (int i = array.Length - 1; i >= 0; i--)
+            BuildHeap(heapay);
+            for (int i = heapSize - 1; i >= 0; i--)
             {
-                array[i] = GetMax();
+                Swap(0, i);
+                heapSize--;
+                Heapify(0);
+            }
+            heapay = heap.ToArray();
+        }
+        public void HeapSortNoRecursion(ref T[] heapay)
+        {
+            BuildHeap(heapay);
+            for (int i = heapSize - 1; i >= 0; i--)
+            {
+                Swap(0, i);
+                heapSize--;
+                Sort(0);
+            }
+            heapay = heap.ToArray();
+        }
+        private void Sort(int curentIndex)
+        {
+            int maxIndex = curentIndex;
+            int leftIndex;
+            int rightIndex;
+
+            while (curentIndex < heapSize)
+            {
+                leftIndex = 2 * curentIndex + 1;
+                rightIndex = 2 * curentIndex + 2;
+
+                if (leftIndex < heapSize && heap[leftIndex].CompareTo(heap[maxIndex]) > 0)
+                {
+                    maxIndex = leftIndex;
+                }
+
+                if (rightIndex < heapSize && heap[rightIndex].CompareTo(heap[maxIndex]) > 0)
+                {
+                    maxIndex = rightIndex;
+                }
+
+                if (maxIndex == curentIndex)
+                {
+                    break;
+                }
+
+                Swap(curentIndex, maxIndex);
+                curentIndex = maxIndex;
+            }
+        }
+        private void Swap(int positionA, int positionB)
+        {
+            if (positionA < heapSize && positionB < heapSize)
+            {
+                var temp = heap[positionA];
+                heap[positionA] = heap[positionB];
+                heap[positionB] = temp;
             }
         }
     }

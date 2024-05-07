@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,42 +11,78 @@ namespace BinaryHeap
 {
     public class BinaryHeap<T> where T : IComparable<T>
     {
-        private List<T> heap;
+        private T[] heap { get; set; }
         public int heapSize { get; private set; }
-        public BinaryHeap() 
+        private int Capacity { get; set; }
+        public BinaryHeap() : this(7)
+        { }
+        public BinaryHeap(IComparer<T> customComparer) : this(4, new T[4], 0)
+        { }
+        public BinaryHeap(int Capacity) : this(Capacity, new T[Capacity], 0)
+        { }
+        public BinaryHeap(T[] source) : this((source.Count() * 2), source, source.Count())
+        { }
+        private BinaryHeap(int сapacity, T[] source, int count)
         {
-            heap = new List<T>();
+            this.Capacity = сapacity;
+            heap = source;
+            heapSize = count;
+
+            if (heapSize != 0)
+            {
+                BuildHeap(heap);
+            }
         }
 
+        private void IncreaseCapacity()
+        {
+            Capacity *= 2;
+            var temp = new T[Capacity];
+            Array.Copy(heap, temp, heapSize);
+            heap = temp;
+        }
+
+        public void Remove(T value)
+        {
+            var index = Array.IndexOf(heap, value);
+
+            if (index == -1)
+            {
+                throw new ArgumentException($"{value} not in heap!");
+            }
+
+            (heap[index], heap[heapSize - 1]) = (heap[heapSize - 1], heap[index]);
+
+            if (index < heapSize)
+            {
+                if (heap[--heapSize].CompareTo(heap[index]) > 0)
+                {
+                    HeapifyUp(index);
+                }
+                else
+                {
+                    Heapify(index);
+                }
+            }
+        }
         public void Add(T item) 
         {
-            heap.Add(item);
-            if (heapSize == 1) 
-                return;     
-
-           
-            int current = heapSize - 1;        
-            int parent = (current - 1) / 2; 
-
-            while (heap[parent].CompareTo(heap[current]) < 0)
+            if (heapSize == Capacity)
             {
-                T temp = heap[current];
-                heap[current] = heap[parent];
-                heap[parent] = temp;
-
-                current = parent;
-                parent = (current - 1) / 2;
+                IncreaseCapacity();
             }
             heapSize++;
+            heap[heapSize - 1] = item;
+            if (heapSize == 1)
+                return;
+            HeapifyUp(heapSize - 1);
         }
         public T GetMax()
         {
             if (heapSize <= 0)
                 throw new IndexOutOfRangeException();
             var result = heap[0];
-            heap[0] = heap[heapSize - 1];
-            heap.RemoveAt(heapSize - 1);
-            heapSize--;
+            heap[0] = heap[--heapSize];
             Heapify(0);
             return result;
         }
@@ -68,10 +105,10 @@ namespace BinaryHeap
             heap[index] = temp;
             Heapify(largest);
         }
-        public void BuildHeap(T [] sourceheapay)
+        private void BuildHeap(T [] sourceheapay)
         {
-            heap = sourceheapay.ToList();
-            heapSize = heap.Count;
+            heap = sourceheapay.ToArray();
+            heapSize = heap.Count();
             for (int i = (heapSize - 1) / 2; i >= 0; i--)
             {
                 Heapify(i);
@@ -136,6 +173,15 @@ namespace BinaryHeap
                 var temp = heap[positionA];
                 heap[positionA] = heap[positionB];
                 heap[positionB] = temp;
+            }
+        }
+        private void HeapifyUp(int index)
+        {
+            var Parent = (index - 1) / 2;
+            while (Parent >= 0 && heap[index].CompareTo(heap[Parent]) > 0)
+            {
+                (heap[index], heap[Parent]) = (heap[Parent], heap[index]);
+                Parent = ((index = (index - 1) / 2) - 1) / 2;
             }
         }
     }

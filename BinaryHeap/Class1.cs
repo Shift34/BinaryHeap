@@ -57,15 +57,11 @@ namespace BinaryHeap
             {
                 if (heap[--heapSize].CompareTo(heap[index]) > 0)
                 {
-                    HeapifyUp(index);
-                }
-                else
-                {
-                    Heapify(index);
+                    HeapifyUp(heapSize);
                 }
             }
         }
-        public void Add(T item) 
+        public void Add(T item)
         {
             if (heapSize == Capacity)
             {
@@ -75,7 +71,7 @@ namespace BinaryHeap
             heap[heapSize - 1] = item;
             if (heapSize == 1)
                 return;
-            HeapifyUp(heapSize - 1);
+            HeapifyUp(heapSize);
         }
         public T GetMax()
         {
@@ -136,6 +132,32 @@ namespace BinaryHeap
             }
             heapay = heap.ToArray();
         }
+        public T[] HeapSortRecursion()
+        {
+            int n = heapSize;
+            for (int i = heapSize - 1; i >= 0; i--)
+            {
+                Swap(0, i);
+                heapSize--;
+                Heapify(0);
+            }
+            T[] heapify = new T[n]; ;
+            Array.Copy(heap, heapify, n);
+            return heapify;
+        }
+        public T[] HeapSortNoRecursion()
+        {
+            int n = heapSize;
+            for (int i = heapSize - 1; i >= 0; i--)
+            {
+                Swap(0, i);
+                heapSize--;
+                Sort(0);
+            }
+            T[] heapify = new T[n]; ;
+            Array.Copy(heap, heapify, n);
+            return heapify;
+        }
         private void Sort(int curentIndex)
         {
             int maxIndex = curentIndex;
@@ -177,11 +199,17 @@ namespace BinaryHeap
         }
         private void HeapifyUp(int index)
         {
-            var Parent = (index - 1) / 2;
-            while (Parent >= 0 && heap[index].CompareTo(heap[Parent]) > 0)
+            int i = index - 1;
+            int parent = (i - 1) / 2;
+
+            while (i > 0 && heap[parent].CompareTo(heap[i]) < 0)
             {
-                (heap[index], heap[Parent]) = (heap[Parent], heap[index]);
-                Parent = ((index = (index - 1) / 2) - 1) / 2;
+                var temp = heap[i];
+                heap[i] = heap[parent];
+                heap[parent] = temp;
+
+                i = parent;
+                parent = (i - 1) / 2;
             }
         }
     }

@@ -204,9 +204,7 @@ namespace BinaryHeap
 
             while (i > 0 && heap[parent].CompareTo(heap[i]) < 0)
             {
-                var temp = heap[i];
-                heap[i] = heap[parent];
-                heap[parent] = temp;
+                Swap(i, parent);
 
                 i = parent;
                 parent = (i - 1) / 2;
